@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:buscador_gifs/ui/gifs.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:share/share.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -130,6 +131,9 @@ class _HomeState extends State<Home> {
                   builder: (context) => GifPages(snapshot.data["data"][index]),
                 )
               );
+            },
+            onLongPress: (){
+              Share.share(snapshot.data["data"][index]["images"]["fixed_height"]["url"]);
             },
             child: Image.network(snapshot.data["data"][index]["images"]["fixed_height"]["url"],
               height: 300,
