@@ -4,6 +4,7 @@ import 'package:buscador_gifs/ui/gifs.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:share/share.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -13,13 +14,12 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   String _search;
   int _offset;
-    GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
 
   Future<Map> _getGifs() async {
     http.Response response;
 
-    if (_search == null)
+    if (_search == null || _search.isEmpty)
       response = await http.get("https://api.giphy.com/v1/gifs/trending?api_key=nr4Dvft5yHSY2x83Y3hxY6kTO1o99t3T&limit=20&rating=G");
     else 
       response = await http.get("https://api.giphy.com/v1/gifs/search?api_key=nr4Dvft5yHSY2x83Y3hxY6kTO1o99t3T&q=$_search&limit=19&offset=$_offset&rating=G&lang=en");
@@ -38,39 +38,29 @@ class _HomeState extends State<Home> {
       backgroundColor: Colors.black,
       body: Column(
         children: <Widget>[
-          Form(
-            key: _formKey,
-            child: Padding(
-              padding: EdgeInsets.all(10),
-              child: TextFormField(
-                decoration: InputDecoration(
-                  labelText: "Pesquise aqui: ",
-                  labelStyle: TextStyle(
-                    color: Colors.white,
-                  ),
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value){
-                  if(value.isEmpty){
-                    return "Insira um texto";
-                  }
-                },
-                style: TextStyle(
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: TextField(
+              decoration: InputDecoration(
+                labelText: "Pesquise aqui: ",
+                labelStyle: TextStyle(
                   color: Colors.white,
-                  fontSize: 18,
                 ),
-                textAlign: TextAlign.center,
-                onFieldSubmitted: (text){
-                  if(_formKey.currentState.validate()){
-                    setState(() {
-                      _search = text;  
-                      _offset = 0;                    
-                    });
-                  }
-                },
+                border: OutlineInputBorder(),
+              ),                
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
               ),
+              textAlign: TextAlign.center,
+              onSubmitted: (text){
+                setState(() {
+                  _search = text;  
+                  _offset = 0;                    
+                });
+              },
             ),
-          ),
+          ),        
           Expanded(
             child: FutureBuilder(
               future: _getGifs(),
@@ -135,7 +125,10 @@ class _HomeState extends State<Home> {
             onLongPress: (){
               Share.share(snapshot.data["data"][index]["images"]["fixed_height"]["url"]);
             },
-            child: Image.network(snapshot.data["data"][index]["images"]["fixed_height"]["url"],
+            
+            child: FadeInImage.memoryNetwork(
+              image: snapshot.data["data"][index]["images"]["fixed_height"]["url"],
+              placeholder: kTransparentImage,
               height: 300,
               fit: BoxFit.cover,
             ),          
